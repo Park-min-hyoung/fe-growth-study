@@ -10,7 +10,7 @@
  * 제외: contenteditable 기본 제어, 기본 이벤트 핸들링은 이미 숙지
  */
 
-import { useRef, useState, useCallback } from 'react';
+import { useRef, useState, useCallback } from "react";
 
 // ============================================================
 // Part 1: Range 생성 + 텍스트 노드에서 범위 지정
@@ -34,6 +34,9 @@ export function createTextRange(
 ): Range {
   // TODO: Range 생성 후 시작/끝 설정하여 반환
   const range = document.createRange();
+  range.setStart(startNode, startOffset);
+  range.setEnd(endNode, endOffset);
+
   return range;
 }
 
@@ -56,20 +59,30 @@ export function createTextRange(
 /** 선택된 범위의 내용을 복제하여 반환 */
 export function cloneRangeContents(range: Range): DocumentFragment {
   // TODO: range.cloneContents() 사용
-  return document.createDocumentFragment();
+
+  return range.cloneContents();
 }
 
 /** 선택된 범위의 내용을 추출(원본에서 제거)하여 반환 */
 export function extractRangeContents(range: Range): DocumentFragment {
   // TODO: range.extractContents() 사용
-  return document.createDocumentFragment();
+  return range.extractContents();
 }
 
 /** 선택된 범위를 주어진 태그로 감싸기 */
 export function surroundWithElement(range: Range, tagName: string): void {
   // TODO: document.createElement(tagName) 생성 후 range.surroundContents 사용
+
   // 주의: 부분 선택 시 에러 처리 필요 → try-catch
-  // 대안: extractContents → createElement → appendChild → insertNode
+  const wrapper = document.createElement(tagName);
+  try {
+    range.surroundContents(wrapper);
+  } catch (e) {
+    // 대안: extractContents → createElement → appendChild → insertNode
+    const fragment = range.extractContents();
+    wrapper.appendChild(fragment);
+    range.insertNode(wrapper);
+  }
 }
 
 // ============================================================
@@ -93,7 +106,12 @@ export function compareRanges(
   range2: Range
 ): { startToStart: number; endToEnd: number } {
   // TODO: 두 비교 결과를 반환
-  return { startToStart: 0, endToEnd: 0 };
+  const startToStart = range1.compareBoundaryPoints(
+    Range.START_TO_START,
+    range2
+  );
+  const endToEnd = range1.compareBoundaryPoints(Range.END_TO_END, range2);
+  return { startToStart, endToEnd };
 }
 
 /**
@@ -105,7 +123,8 @@ export function compareRanges(
  */
 export function duplicateRange(range: Range): Range {
   // TODO: cloneRange 사용
-  return document.createRange();
+
+  return range.cloneRange();
 }
 
 // ============================================================
@@ -125,7 +144,8 @@ export function duplicateRange(range: Range): Range {
  */
 export default function RangeBasicsDemo() {
   const editorRef = useRef<HTMLDivElement>(null);
-  const [rangeInfo, setRangeInfo] = useState<string>('');
+  const [rangeInfo, setRangeInfo] = useState<string>("");
+  const [clonedContent, setClonedContent] = useState<string>("");
 
   const handleShowRangeInfo = useCallback(() => {
     // TODO: 현재 Selection에서 Range 가져오기
@@ -136,13 +156,42 @@ export default function RangeBasicsDemo() {
     // range.toString() — 선택된 텍스트
   }, []);
 
+  const handleSelectRange = () => {
+    const ref = editorRef.current;
+    if (!ref) return;
+
+    const textNode = ref.firstChild;
+
+    if (!textNode) return;
+
+    const range = createTextRange(textNode, 2, textNode, 8);
+
+    const selection = window.getSelection();
+
+    selection?.removeAllRanges();
+    selection?.addRange(range);
+  };
+
+  const handleCloneRangeContents = () => {
+    const selection = window.getSelection();
+    const range = selection?.getRangeAt(0);
+
+    if (!range) return;
+
+    const content = cloneRangeContents(range);
+
+    setClonedContent(content.textContent);
+  };
+
   return (
     <div>
       <h2>Day 01: Range 객체 기본</h2>
 
-      <div style={{ display: 'flex', gap: '8px', marginBottom: '12px' }}>
+      <div style={{ display: "flex", gap: "8px", marginBottom: "12px" }}>
         {/* TODO: "범위 선택" 버튼 — 2번째~8번째 글자를 프로그래밍적으로 선택 */}
+        <button onClick={handleSelectRange}>범위 선택</button>
         {/* TODO: "복제" 버튼 — 선택된 범위의 내용을 복제하여 아래 영역에 표시 */}
+        <button onClick={handleCloneRangeContents}>복제</button>
         {/* TODO: "추출" 버튼 — 선택된 범위의 내용을 추출(원본에서 제거) */}
         {/* TODO: "감싸기" 버튼 — 선택된 범위를 <mark>로 감싸기 */}
         {/* TODO: "Range 정보" 버튼 → handleShowRangeInfo */}
@@ -153,9 +202,9 @@ export default function RangeBasicsDemo() {
         contentEditable
         suppressContentEditableWarning
         style={{
-          border: '1px solid #ccc',
-          padding: '16px',
-          minHeight: '150px',
+          border: "1px solid #ccc",
+          padding: "16px",
+          minHeight: "150px",
         }}
       >
         Range 객체를 학습합니다. 이 텍스트에서 다양한 범위를 선택하고
@@ -166,14 +215,28 @@ export default function RangeBasicsDemo() {
       {rangeInfo && (
         <pre
           style={{
-            marginTop: '12px',
-            padding: '12px',
-            background: '#f5f5f5',
-            fontSize: '13px',
+            marginTop: "12px",
+            padding: "12px",
+            background: "#f5f5f5",
+            fontSize: "13px",
           }}
         >
           {rangeInfo}
         </pre>
+      )}
+
+      {clonedContent && (
+        <div
+          style={{
+            marginTop: "12px",
+            padding: "12px",
+            background: "#e8f5e9",
+            color: "black",
+            fontSize: "13px",
+          }}
+        >
+          <strong>결과:</strong> {clonedContent}
+        </div>
       )}
     </div>
   );

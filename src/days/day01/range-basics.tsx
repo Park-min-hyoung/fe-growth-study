@@ -146,14 +146,16 @@ export default function RangeBasicsDemo() {
   const editorRef = useRef<HTMLDivElement>(null);
   const [rangeInfo, setRangeInfo] = useState<string>("");
   const [clonedContent, setClonedContent] = useState<string>("");
+  const [extractedContent, setExtractedContent] = useState<string>("");
 
   const handleShowRangeInfo = useCallback(() => {
     // TODO: 현재 Selection에서 Range 가져오기
-    // const selection = window.getSelection();
-    // if (!selection || selection.rangeCount === 0) return;
-    // const range = selection.getRangeAt(0);
-    // range.startContainer, range.startOffset, range.endContainer, range.endOffset
-    // range.toString() — 선택된 텍스트
+    const selection = window.getSelection();
+    console.log(selection?.rangeCount);
+    if (!selection || selection.rangeCount === 0) return;
+    const range = selection.getRangeAt(0);
+
+    setRangeInfo(range.toString());
   }, []);
 
   const handleSelectRange = () => {
@@ -162,12 +164,11 @@ export default function RangeBasicsDemo() {
 
     const textNode = ref.firstChild;
 
-    if (!textNode) return;
+    if (!textNode || textNode.nodeType !== Node.TEXT_NODE) return;
 
     const range = createTextRange(textNode, 2, textNode, 8);
 
     const selection = window.getSelection();
-
     selection?.removeAllRanges();
     selection?.addRange(range);
   };
@@ -183,6 +184,26 @@ export default function RangeBasicsDemo() {
     setClonedContent(content.textContent);
   };
 
+  const handleExtractRangeContents = () => {
+    const selection = getSelection();
+    const range = selection?.getRangeAt(0);
+
+    if (!range) return;
+
+    const extractedContent = extractRangeContents(range);
+
+    setExtractedContent(extractedContent.textContent);
+  };
+
+  const handleSurroundRangeContents = () => {
+    const selection = getSelection();
+    const range = selection?.getRangeAt(0);
+
+    if (!range) return;
+
+    surroundWithElement(range, "mark");
+  };
+
   return (
     <div>
       <h2>Day 01: Range 객체 기본</h2>
@@ -193,8 +214,11 @@ export default function RangeBasicsDemo() {
         {/* TODO: "복제" 버튼 — 선택된 범위의 내용을 복제하여 아래 영역에 표시 */}
         <button onClick={handleCloneRangeContents}>복제</button>
         {/* TODO: "추출" 버튼 — 선택된 범위의 내용을 추출(원본에서 제거) */}
+        <button onClick={handleExtractRangeContents}>추출</button>
         {/* TODO: "감싸기" 버튼 — 선택된 범위를 <mark>로 감싸기 */}
+        <button onClick={handleSurroundRangeContents}>하이라이팅</button>
         {/* TODO: "Range 정보" 버튼 → handleShowRangeInfo */}
+        <button onClick={handleShowRangeInfo}>Range 정보</button>
       </div>
 
       <div
@@ -218,6 +242,7 @@ export default function RangeBasicsDemo() {
             marginTop: "12px",
             padding: "12px",
             background: "#f5f5f5",
+            color: "black",
             fontSize: "13px",
           }}
         >
@@ -235,7 +260,21 @@ export default function RangeBasicsDemo() {
             fontSize: "13px",
           }}
         >
-          <strong>결과:</strong> {clonedContent}
+          <strong>복사 결과:</strong> {clonedContent}
+        </div>
+      )}
+
+      {extractedContent && (
+        <div
+          style={{
+            marginTop: "12px",
+            padding: "12px",
+            background: "#e8f5e9",
+            color: "black",
+            fontSize: "13px",
+          }}
+        >
+          <strong>추출 결과:</strong> {extractedContent}
         </div>
       )}
     </div>

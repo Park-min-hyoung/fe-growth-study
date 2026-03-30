@@ -9,7 +9,13 @@
  * - 크로스브라우저 차이 이해
  */
 
-import { useRef, useState, useCallback } from 'react';
+import { useRef, useState, useCallback } from "react";
+
+// const getCurrentRange = useCallback((): Range | null => {
+//   const selection = window.getSelection();
+//   if (!selection || selection.rangeCount === 0) return null;
+//   return selection.getRangeAt(0);
+// }, []);
 
 // ============================================================
 // Part 1: 프로그래밍적 텍스트 선택
@@ -31,8 +37,21 @@ export function selectTextProgrammatically(
 ): void {
   // TODO: 구현
   // 1. element 내부의 텍스트 노드를 찾는다
+  const textNode = element.firstChild;
+
+  if (!textNode || textNode.nodeType !== Node.TEXT_NODE) return;
   // 2. Range를 생성하여 startOffset~endOffset 설정
+  const range = document.createRange();
+  range.setStart(textNode, startOffset);
+  range.setEnd(textNode, endOffset);
+
   // 3. Selection에 Range를 적용
+  const selection = window.getSelection();
+
+  if (!selection) return;
+
+  selection.removeAllRanges();
+  selection.addRange(range);
 }
 
 /**
@@ -45,6 +64,11 @@ export function selectTextProgrammatically(
  */
 export function selectAll(element: HTMLElement): void {
   // TODO: 구현
+  const selection = window.getSelection();
+
+  if (!selection) return;
+
+  selection.selectAllChildren(element);
 }
 
 // ============================================================
@@ -64,8 +88,16 @@ export function selectAll(element: HTMLElement): void {
  */
 export function addMultipleRanges(ranges: Range[]): number {
   // TODO: 여러 Range를 Selection에 추가하고, 실제로 추가된 개수를 반환
-  // 크로스브라우저 차이를 로그로 기록
-  return 0;
+
+  const selection = window.getSelection();
+
+  if (!selection) return 0;
+
+  for (const range of ranges) {
+    selection.addRange(range);
+  }
+
+  return selection.rangeCount;
 }
 
 // ============================================================
@@ -82,13 +114,31 @@ export function addMultipleRanges(ranges: Range[]): number {
  * - selection.isCollapsed — true이면 커서(선택 없음)
  * - 방향 비교: Range의 compareBoundaryPoints 또는 node.compareDocumentPosition 활용
  */
-export type SelectionDirection = 'forward' | 'backward' | 'none';
+export type SelectionDirection = "forward" | "backward" | "none";
 
 export function getSelectionDirection(): SelectionDirection {
   // TODO: 현재 Selection의 방향을 판별하여 반환
   // 힌트: anchorNode와 focusNode의 위치를 비교
-  // 같은 노드면 offset 비교, 다른 노드면 compareDocumentPosition 사용
-  return 'none';
+  const selection = window.getSelection();
+
+  if (selection?.isCollapsed) return 'none'
+
+  const anchorNode = selection?.anchorNode;
+const focusNode = selection?.focusNode;
+
+if (!anchorNode || !focusNode) return 'none'
+
+  if (selection?.anchorNode === selection?.focusNode) {
+    // 같은 노드면 offset 비교,
+    const anchorOffset = selection?.anchorOffset ?? 0;
+    const endOffset = selection?.focusOffset ?? 0;
+
+    if (anchorOffset < endOffset) return "forward";
+    else if (anchorOffset > endOffset) return "backward";
+    else return "none";
+  } else {
+const postion = 
+  }
 }
 
 /**
@@ -143,7 +193,7 @@ export default function SelectionControlDemo() {
     <div>
       <h2>Day 02: Selection 객체 제어</h2>
 
-      <div style={{ display: 'flex', gap: '8px', marginBottom: '12px' }}>
+      <div style={{ display: "flex", gap: "8px", marginBottom: "12px" }}>
         {/* TODO: "3~7글자 선택" 버튼 */}
         {/* TODO: "전체 선택" 버튼 */}
         {/* TODO: "선택 해제" 버튼 */}
@@ -155,12 +205,12 @@ export default function SelectionControlDemo() {
         contentEditable
         suppressContentEditableWarning
         style={{
-          border: '1px solid #ccc',
-          padding: '16px',
-          minHeight: '150px',
+          border: "1px solid #ccc",
+          padding: "16px",
+          minHeight: "150px",
         }}
       >
-        Selection API로 텍스트를 프로그래밍적으로 선택합니다.{' '}
+        Selection API로 텍스트를 프로그래밍적으로 선택합니다.{" "}
         <strong>anchor</strong>와 <em>focus</em>의 차이를 이해하세요.
       </div>
 
@@ -168,11 +218,11 @@ export default function SelectionControlDemo() {
       {info && (
         <div
           style={{
-            marginTop: '12px',
-            padding: '12px',
-            background: '#f0f0f0',
-            fontFamily: 'monospace',
-            fontSize: '13px',
+            marginTop: "12px",
+            padding: "12px",
+            background: "#f0f0f0",
+            fontFamily: "monospace",
+            fontSize: "13px",
           }}
         >
           {/* 선택 텍스트, 방향, isCollapsed, rangeCount 등 표시 */}

@@ -9,7 +9,7 @@
  * - 크로스브라우저 차이 이해
  */
 
-import { useRef, useState, useCallback } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 
 // const getCurrentRange = useCallback((): Range | null => {
 //   const selection = window.getSelection();
@@ -37,13 +37,25 @@ export function selectTextProgrammatically(
 ): void {
   // TODO: 구현
   // 1. element 내부의 텍스트 노드를 찾는다
-  const textNode = element.firstChild;
+  let textNode: Node | null = null;
+  for (const childNode of element.childNodes) {
+    if (childNode.nodeType === Node.TEXT_NODE) {
+      textNode = childNode;
+      break;
+    }
+  }
 
-  if (!textNode || textNode.nodeType !== Node.TEXT_NODE) return;
+  if (!textNode) return;
+
+  const textNodeLength = textNode?.textContent?.length ?? 0;
+
+  const safeStart = Math.min(startOffset, textNodeLength);
+  const safeEnd = Math.min(endOffset, textNodeLength);
+
   // 2. Range를 생성하여 startOffset~endOffset 설정
   const range = document.createRange();
-  range.setStart(textNode, startOffset);
-  range.setEnd(textNode, endOffset);
+  range.setStart(textNode, safeStart);
+  range.setEnd(textNode, safeEnd);
 
   // 3. Selection에 Range를 적용
   const selection = window.getSelection();
@@ -68,6 +80,7 @@ export function selectAll(element: HTMLElement): void {
 
   if (!selection) return;
 
+  selection.removeAllRanges();
   selection.selectAllChildren(element);
 }
 
@@ -121,12 +134,12 @@ export function getSelectionDirection(): SelectionDirection {
   // 힌트: anchorNode와 focusNode의 위치를 비교
   const selection = window.getSelection();
 
-  if (selection?.isCollapsed) return 'none'
+  if (selection?.isCollapsed) return "none";
 
   const anchorNode = selection?.anchorNode;
-const focusNode = selection?.focusNode;
+  const focusNode = selection?.focusNode;
 
-if (!anchorNode || !focusNode) return 'none'
+  if (!anchorNode || !focusNode) return "none";
 
   if (selection?.anchorNode === selection?.focusNode) {
     // 같은 노드면 offset 비교,
@@ -137,7 +150,19 @@ if (!anchorNode || !focusNode) return 'none'
     else if (anchorOffset > endOffset) return "backward";
     else return "none";
   } else {
-const postion = 
+    if (
+      anchorNode.compareDocumentPosition(focusNode) ===
+      Node.DOCUMENT_POSITION_FOLLOWING
+    )
+      return "forward";
+    else if (
+      anchorNode.compareDocumentPosition(focusNode) ===
+      Node.DOCUMENT_POSITION_PRECEDING
+    )
+      return "backward";
+    else {
+      return "none";
+    }
   }
 }
 
@@ -156,11 +181,34 @@ export interface SelectionInfo {
   rangeCount: number;
   anchorOffset: number;
   focusOffset: number;
+  anchorNode: Node | null;
+  focusNode: Node | null;
 }
 
 export function getSelectionInfo(): SelectionInfo | null {
-  // TODO: 현재 Selection 정보를 수집하여 반환
-  return null;
+  const selection = window.getSelection();
+
+  if (!selection) return null;
+
+  const text = selection.toString();
+  const isCollapsed = selection.isCollapsed;
+  const direction = getSelectionDirection();
+  const anchorOffset = selection.anchorOffset;
+  const focusOffset = selection.focusOffset;
+  const rangeCount = selection.rangeCount;
+  const anchorNode = selection.anchorNode;
+  const focusNode = selection.focusNode;
+
+  return {
+    text,
+    isCollapsed,
+    direction,
+    anchorOffset,
+    focusOffset,
+    rangeCount,
+    anchorNode,
+    focusNode,
+  };
 }
 
 // ============================================================
@@ -187,6 +235,35 @@ export default function SelectionControlDemo() {
 
   const handleSelect = useCallback(() => {
     // TODO: selectTextProgrammatically 호출
+
+    if (!editorRef.current) return;
+
+    selectTextProgrammatically(editorRef.current, 2, 8);
+  }, []);
+
+  const handleSelectAll = useCallback(() => {
+    if (!editorRef.current) return;
+
+    selectAll(editorRef.current);
+  }, []);
+
+  const handleSelectRemoveAll = useCallback(() => {
+    const selection = window.getSelection();
+
+    if (!selection) return;
+
+    selection.removeAllRanges();
+  }, []);
+
+  const handleViewSelectInfo = useCallback(() => {
+    const selectInfo = getSelectionInfo();
+
+    setInfo(selectInfo);
+  }, []);
+
+  useEffect(() => {
+    const handler = () => setInfo(getSelectionInfo());
+    document.addEventListener("selectionchange", handler);
   }, []);
 
   return (
@@ -195,9 +272,12 @@ export default function SelectionControlDemo() {
 
       <div style={{ display: "flex", gap: "8px", marginBottom: "12px" }}>
         {/* TODO: "3~7글자 선택" 버튼 */}
+        <button onClick={handleSelect}>3~7글자 선택</button>
         {/* TODO: "전체 선택" 버튼 */}
+        <button onClick={handleSelectAll}>전체 선택</button>
         {/* TODO: "선택 해제" 버튼 */}
-        {/* TODO: "다중 선택 시도" 버튼 */}
+        <button onClick={handleSelectRemoveAll}>선택 해제</button>
+        <button onClick={handleViewSelectInfo}>Selection 객체 정보 보기</button>
       </div>
 
       <div
@@ -221,11 +301,20 @@ export default function SelectionControlDemo() {
             marginTop: "12px",
             padding: "12px",
             background: "#f0f0f0",
+            color: "black",
             fontFamily: "monospace",
             fontSize: "13px",
           }}
         >
           {/* 선택 텍스트, 방향, isCollapsed, rangeCount 등 표시 */}
+          <div>anchorNode: {info.anchorNode?.innerHTML}</div>
+          <div>anchorOffset: {info.anchorOffset}</div>
+          <div>focusNode: {info.focusNode?.textContent}</div>
+          <div>focusOffset: {info.focusOffset}</div>
+          <div>text: {info.text === "" ? "선택 x" : info.text}</div>
+          <div>isCollapsed: {String(info.isCollapsed)}</div>
+          <div>direction: {info.direction}</div>
+          <div>rangeCount: {info.rangeCount}</div>
         </div>
       )}
     </div>
@@ -237,11 +326,10 @@ export default function SelectionControlDemo() {
  * 완료 체크리스트
  * ============================================================
  *
- * [ ] 버튼 클릭으로 특정 범위의 텍스트가 프로그래밍적으로 선택됨
- * [ ] selectAll로 요소 내 전체 텍스트가 선택됨
- * [ ] removeAllRanges로 선택이 해제됨
- * [ ] 다중 Range 추가 시도 + 브라우저별 차이 확인 (rangeCount)
- * [ ] Selection 방향(forward/backward)이 올바르게 감지됨
+ * [x] 버튼 클릭으로 특정 범위의 텍스트가 프로그래밍적으로 선택됨
+ * [x] selectAll로 요소 내 전체 텍스트가 선택됨
+ * [x] removeAllRanges로 선택이 해제됨
+ * [] Selection 방향(forward/backward)이 올바르게 감지됨
  * [ ] selectionchange 이벤트로 Selection 정보가 실시간 업데이트됨
- * [ ] isCollapsed 상태가 올바르게 표시됨
+ * [x] isCollapsed 상태가 올바르게 표시됨
  */

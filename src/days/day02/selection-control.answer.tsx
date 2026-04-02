@@ -4,7 +4,7 @@
  * ⚠️ 먼저 selection-control.tsx를 직접 구현한 뒤 비교하세요!
  */
 
-import { useRef, useState, useCallback, useEffect } from 'react';
+import { useRef, useState, useCallback, useEffect } from "react";
 
 // ============================================================
 // Part 1: 프로그래밍적 텍스트 선택
@@ -92,7 +92,9 @@ export function addMultipleRanges(ranges: Range[]): number {
   const actualCount = selection.rangeCount;
   console.log(
     `[addMultipleRanges] 시도: ${ranges.length}개, 실제 추가됨: ${actualCount}개`,
-    `(브라우저: ${navigator.userAgent.includes('Firefox') ? 'Firefox' : 'Chrome/Safari 계열'})`
+    `(브라우저: ${
+      navigator.userAgent.includes("Firefox") ? "Firefox" : "Chrome/Safari 계열"
+    })`
   );
 
   return actualCount;
@@ -102,7 +104,7 @@ export function addMultipleRanges(ranges: Range[]): number {
 // Part 3: Selection 방향 감지
 // ============================================================
 
-export type SelectionDirection = 'forward' | 'backward' | 'none';
+export type SelectionDirection = "forward" | "backward" | "none";
 
 /**
  * 현재 Selection의 방향을 판별
@@ -115,20 +117,20 @@ export type SelectionDirection = 'forward' | 'backward' | 'none';
  */
 export function getSelectionDirection(): SelectionDirection {
   const selection = window.getSelection();
-  if (!selection || selection.isCollapsed) return 'none';
+  if (!selection || selection.isCollapsed) return "none";
 
   const { anchorNode, anchorOffset, focusNode, focusOffset } = selection;
-  if (!anchorNode || !focusNode) return 'none';
+  if (!anchorNode || !focusNode) return "none";
 
   if (anchorNode === focusNode) {
-    return anchorOffset <= focusOffset ? 'forward' : 'backward';
+    return anchorOffset <= focusOffset ? "forward" : "backward";
   }
 
   // compareDocumentPosition: anchorNode 기준으로 focusNode의 위치
   const position = anchorNode.compareDocumentPosition(focusNode);
 
   // DOCUMENT_POSITION_FOLLOWING = 4: focusNode가 anchorNode 뒤에 있음 → forward
-  return position & Node.DOCUMENT_POSITION_FOLLOWING ? 'forward' : 'backward';
+  return position & Node.DOCUMENT_POSITION_FOLLOWING ? "forward" : "backward";
 }
 
 /**
@@ -168,8 +170,8 @@ export default function SelectionControlDemo() {
   // selectionchange 이벤트로 Selection 정보 실시간 업데이트
   useEffect(() => {
     const handler = () => setInfo(getSelectionInfo());
-    document.addEventListener('selectionchange', handler);
-    return () => document.removeEventListener('selectionchange', handler);
+    document.addEventListener("selectionchange", handler);
+    return () => document.removeEventListener("selectionchange", handler);
   }, []);
 
   const handleSelect = useCallback(() => {
@@ -195,7 +197,9 @@ export default function SelectionControlDemo() {
 
     // 에디터 내 텍스트 노드들로 두 개의 Range 생성
     const children = Array.from(editor.childNodes);
-    const textNodes = children.filter((n) => n.nodeType === Node.TEXT_NODE) as Text[];
+    const textNodes = children.filter(
+      (n) => n.nodeType === Node.TEXT_NODE
+    ) as Text[];
 
     if (textNodes.length === 0) return;
 
@@ -229,7 +233,7 @@ export default function SelectionControlDemo() {
     <div>
       <h2>Day 02: Selection 객체 제어</h2>
 
-      <div style={{ display: 'flex', gap: '8px', marginBottom: '12px' }}>
+      <div style={{ display: "flex", gap: "8px", marginBottom: "12px" }}>
         <button onClick={handleSelect}>3~7글자 선택</button>
         <button onClick={handleSelectAll}>전체 선택</button>
         <button onClick={handleDeselect}>선택 해제</button>
@@ -241,23 +245,24 @@ export default function SelectionControlDemo() {
         contentEditable
         suppressContentEditableWarning
         style={{
-          border: '1px solid #ccc',
-          padding: '16px',
-          minHeight: '150px',
+          border: "1px solid #ccc",
+          padding: "16px",
+          minHeight: "150px",
         }}
       >
-        Selection API로 텍스트를 프로그래밍적으로 선택합니다.{' '}
+        Selection API로 텍스트를 프로그래밍적으로 선택합니다.{" "}
         <strong>anchor</strong>와 <em>focus</em>의 차이를 이해하세요.
       </div>
 
       {info && (
         <div
           style={{
-            marginTop: '12px',
-            padding: '12px',
-            background: '#f0f0f0',
-            fontFamily: 'monospace',
-            fontSize: '13px',
+            marginTop: "12px",
+            padding: "12px",
+            background: "#f0f0f0",
+            fontFamily: "monospace",
+            color: "black",
+            fontSize: "13px",
           }}
         >
           <div>selectedText: "{info.text}"</div>

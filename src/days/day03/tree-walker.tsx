@@ -8,7 +8,7 @@
  * - TreeWalker vs NodeIterator vs 재귀 순회 비교
  */
 
-import { useRef, useState, useCallback } from 'react';
+import { useRef, useState, useCallback } from "react";
 
 // ============================================================
 // Part 1: 텍스트 노드만 순회 (NodeFilter.SHOW_TEXT)
@@ -29,7 +29,13 @@ import { useRef, useState, useCallback } from 'react';
 export function collectTextNodes(root: HTMLElement): Text[] {
   const textNodes: Text[] = [];
   // TODO: TreeWalker 생성 + while(walker.nextNode()) 루프로 수집
-  return textNodes;
+  const treeWalker = document.createTreeWalker(root, NodeFilter.SHOW_TEXT);
+
+  while (treeWalker.nextNode()) {
+    textNodes.push(treeWalker.currentNode as Text);
+  }
+
+  return textNodes.filter(Boolean);
 }
 
 /**
@@ -37,7 +43,13 @@ export function collectTextNodes(root: HTMLElement): Text[] {
  */
 export function getTotalTextLength(root: HTMLElement): number {
   // TODO: collectTextNodes 활용
-  return 0;
+
+  const textNodes = collectTextNodes(root);
+
+  const mappedTextNodes = textNodes.map((node) => node.textContent);
+  const totalTextLength = mappedTextNodes.join("").length;
+
+  return totalTextLength;
 }
 
 // ============================================================
@@ -60,19 +72,49 @@ export function getTotalTextLength(root: HTMLElement): number {
 
 /** 빈 텍스트 노드(공백만)를 제외한 텍스트 노드 수집 */
 export function collectNonEmptyTextNodes(root: HTMLElement): Text[] {
+  const nodeFilter = {
+    acceptNode: function (node: Node) {
+      if (node.textContent?.trim() !== "") return NodeFilter.FILTER_REJECT;
+      else return NodeFilter.FILTER_ACCEPT;
+    },
+  };
   const textNodes: Text[] = [];
   // TODO: filter에서 node.textContent?.trim() 확인
-  // 빈 문자열이면 FILTER_REJECT, 아니면 FILTER_ACCEPT
+  const treewalker = document.createTreeWalker(
+    root,
+    NodeFilter.SHOW_ALL,
+    nodeFilter
+  );
+
+  while (treewalker.nextNode()) {
+    textNodes.push(treewalker.currentNode as Text);
+  }
+
   return textNodes;
 }
 
 /** 특정 태그(예: 'SCRIPT', 'STYLE') 내부의 노드를 제외하고 수집 */
 export function collectVisibleTextNodes(root: HTMLElement): Text[] {
+  const nodeFilter = {
+    acceptNode: function (node: Node) {
+      if (node.nodeName === "SCRIPT" || node.nodeName === "STYLE")
+        return NodeFilter.FILTER_REJECT;
+      else if (node.nodeType === Node.TEXT_NODE)
+        return NodeFilter.FILTER_ACCEPT;
+      else return NodeFilter.FILTER_SKIP;
+    },
+  };
   const textNodes: Text[] = [];
-  // TODO: SHOW_ALL 또는 SHOW_TEXT + SHOW_ELEMENT 사용
-  // SCRIPT, STYLE 요소를 만나면 FILTER_REJECT (자손도 무시)
-  // 텍스트 노드면 FILTER_ACCEPT
-  // 다른 요소면 FILTER_SKIP (자손은 계속)
+  const treeWalker = document.createTreeWalker(
+    root,
+    NodeFilter.SHOW_ALL,
+    nodeFilter
+  );
+
+  while (treeWalker.nextNode()) {
+    textNodes.push(treeWalker.currentNode as Text);
+  }
+
   return textNodes;
 }
 
@@ -92,8 +134,15 @@ export function collectVisibleTextNodes(root: HTMLElement): Text[] {
 
 /** NodeIterator 방식 */
 export function collectWithNodeIterator(root: HTMLElement): Text[] {
-  const textNodes: Text[] = [];
   // TODO: createNodeIterator 사용
+  const textNodes: Text[] = [];
+  let node = null;
+  const nodeIterator = document.createNodeIterator(root, NodeFilter.SHOW_TEXT);
+
+  while ((node = nodeIterator.nextNode())) {
+    textNodes.push(node as Text);
+  }
+
   return textNodes;
 }
 
@@ -101,15 +150,41 @@ export function collectWithNodeIterator(root: HTMLElement): Text[] {
 export function collectWithRecursion(root: HTMLElement): Text[] {
   const textNodes: Text[] = [];
   // TODO: 재귀 함수로 childNodes 순회
-  // function walk(node: Node) { ... }
+  function walk(node: Node) {
+    if (!node) return;
+
+    if (node.nodeType === Node.TEXT_NODE) {
+      textNodes.push(node);
+    }
+
+    if (node.childNodes.length > 0) {
+      for (const childNode of node.childNodes) {
+        walk(childNode);
+      }
+    }
+  }
+
+  walk(root);
+
   return textNodes;
 }
 
 /** 성능 비교 */
 export function benchmarkTraversal(root: HTMLElement) {
   // TODO: 세 방식의 실행 시간을 측정하여 반환
-  // { treeWalker: number, nodeIterator: number, recursion: number } (ms)
-  return { treeWalker: 0, nodeIterator: 0, recursion: 0 };
+  const calc = (fn) => {
+    const t0 = performance.now();
+    fn(root);
+    const t1 = performance.now();
+
+    return t1 - t0;
+  };
+
+  return {
+    treeWalker: calc(collectTextNodes),
+    nodeIterator: calc(collectWithNodeIterator),
+    recursion: calc(collectWithRecursion),
+  };
 }
 
 // ============================================================
@@ -138,16 +213,87 @@ export default function TreeWalkerDemo() {
   const handleCollect = useCallback(() => {
     // TODO: collectTextNodes → 결과를 nodes에 저장
     // 각 노드의 textContent와 parentElement.tagName 기록
+    if (!editorRef.current) return;
+
+    const textNodes = collectTextNodes(editorRef.current);
+    const nodes = textNodes.map((node) => {
+      return {
+        parent: node.parentElement?.tagName ?? "",
+        text: node.data,
+      };
+    });
+    setNodes(nodes);
+  }, []);
+
+  const handleNoEmptyNodeCollection = useCallback(() => {
+    // TODO: collectTextNodes → 결과를 nodes에 저장
+    // 각 노드의 textContent와 parentElement.tagName 기록
+    if (!editorRef.current) return;
+
+    const textNodes = collectTextNodes(editorRef.current);
+    const nodes = textNodes
+      .map((node) => {
+        return {
+          parent: node.parentElement?.tagName ?? "",
+          text: node.data,
+        };
+      })
+      .filter((node) => Boolean(node.text.trim()));
+    setNodes(nodes);
+  }, []);
+
+  const handleHighlight = useCallback((text) => {
+    if (!editorRef.current) return;
+
+    const walker = document.createTreeWalker(
+      editorRef.current,
+      NodeFilter.SHOW_TEXT,
+      null
+    );
+
+    while (walker.nextNode()) {
+      const currentNode = walker.currentNode as Text;
+      const currentNodeText = currentNode.data;
+
+      if (text === currentNodeText) {
+        const range = document.createRange();
+
+        range.setStart(currentNode, 0);
+        range.setEnd(currentNode, currentNode.data.length);
+
+        const selection = window.getSelection();
+
+        if (!selection) return;
+
+        selection.removeAllRanges();
+        selection.addRange(range);
+
+        break;
+      }
+    }
+  }, []);
+
+  const handleBenchMark = useCallback(() => {
+    if (!editorRef.current) return;
+
+    const benchmark = benchmarkTraversal(editorRef.current);
+    console.log(benchmark);
+    setBenchmark(benchmark);
   }, []);
 
   return (
     <div>
       <h2>Day 03: TreeWalker API</h2>
 
-      <div style={{ display: 'flex', gap: '8px', marginBottom: '12px' }}>
+      <div style={{ display: "flex", gap: "8px", marginBottom: "12px" }}>
         {/* TODO: "텍스트 노드 수집" 버튼 */}
+        <button onClick={handleCollect}>텍스트 노드 수집</button>
         {/* TODO: "비어있지 않은 노드만" 버튼 */}
+        <button onClick={handleNoEmptyNodeCollection}>
+          비어있지 않는 노드만
+        </button>
         {/* TODO: "성능 비교" 버튼 */}
+        <button onClick={handleBenchMark}>성능 비교</button>
       </div>
 
       <div
@@ -155,17 +301,20 @@ export default function TreeWalkerDemo() {
         contentEditable
         suppressContentEditableWarning
         style={{
-          border: '1px solid #ccc',
-          padding: '16px',
-          minHeight: '150px',
+          border: "1px solid #ccc",
+          padding: "16px",
+          minHeight: "150px",
         }}
       >
         <p>
           첫 번째 <strong>볼드</strong> 문단입니다.
         </p>
         <p>
-          두 번째 문단에 <em>이탤릭</em>과 <strong><em>볼드+이탤릭</em></strong>이
-          있습니다.
+          두 번째 문단에 <em>이탤릭</em>과{" "}
+          <strong>
+            <em>볼드+이탤릭</em>
+          </strong>
+          이 있습니다.
         </p>
         <ul>
           <li>리스트 아이템 1</li>
@@ -177,15 +326,50 @@ export default function TreeWalkerDemo() {
 
       {/* TODO: 수집된 텍스트 노드 목록 표시 */}
       {nodes.length > 0 && (
-        <div style={{ marginTop: '12px' }}>
+        <div style={{ marginTop: "12px" }}>
           <h3>수집된 텍스트 노드 ({nodes.length}개)</h3>
-          <ul style={{ fontFamily: 'monospace', fontSize: '13px' }}>
+          <ul style={{ fontFamily: "monospace", fontSize: "13px" }}>
             {/* TODO: 각 노드의 부모 태그와 텍스트 내용 표시 */}
+            {nodes.map((n, i) => (
+              <li
+                key={i}
+                style={{ cursor: "pointer", padding: "2px 0" }}
+                onClick={() => handleHighlight(n.text)}
+              >
+                <span style={{ color: "#888" }}>
+                  &lt;{n.parent.toLowerCase()}&gt;
+                </span>{" "}
+                {JSON.stringify(n.text)}
+              </li>
+            ))}
           </ul>
         </div>
       )}
 
       {/* TODO: 벤치마크 결과 표시 */}
+      {benchmark && (
+        <div
+          style={{
+            marginTop: "12px",
+            fontFamily: "monospace",
+            fontSize: "13px",
+          }}
+        >
+          <h3>성능 비교 (100회 평균, ms)</h3>
+          <table style={{ borderCollapse: "collapse" }}>
+            <tbody>
+              {(["treeWalker", "nodeIterator", "recursion"] as const).map(
+                (key) => (
+                  <tr key={key}>
+                    <td style={{ paddingRight: "16px" }}>{key}</td>
+                    <td>{benchmark[key].toFixed(4)} ms</td>
+                  </tr>
+                )
+              )}
+            </tbody>
+          </table>
+        </div>
+      )}
     </div>
   );
 }

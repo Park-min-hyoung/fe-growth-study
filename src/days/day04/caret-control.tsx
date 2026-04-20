@@ -10,7 +10,7 @@
  * 상호작용: Day03의 TreeWalker 활용
  */
 
-import { useRef, useState, useCallback, useEffect } from 'react';
+import { useRef, useState, useCallback, useEffect } from "react";
 
 // ============================================================
 // Part 1: setCaretByOffset — 전체 오프셋으로 커서 이동
@@ -37,6 +37,31 @@ export function setCaretByOffset(
   globalOffset: number
 ): void {
   // TODO: 구현
+  let currentTotalLength = 0;
+
+  const treeWalker = document.createTreeWalker(root, NodeFilter.SHOW_TEXT);
+
+  while (treeWalker.nextNode()) {
+    const currentNode = treeWalker.currentNode as Text;
+    const currentNodeLength = currentNode.length;
+
+    const localOffset = globalOffset - currentTotalLength;
+
+    if (localOffset <= currentNodeLength) {
+      const range = document.createRange();
+      range.setStart(currentNode, localOffset);
+      range.collapse();
+      break;
+    }
+
+    currentTotalLength += currentNodeLength;
+  }
+
+  if (globalOffset > currentTotalLength) {
+    const range = document.createRange();
+    range.setStart(root, currentTotalLength);
+    range.collapse();
+  }
 }
 
 // ============================================================
@@ -58,7 +83,36 @@ export function setCaretByOffset(
  */
 export function getCaretOffset(root: HTMLElement): number {
   // TODO: 구현
-  return 0;
+  const selection = window.getSelection();
+  const walker = document.createTreeWalker(root, NodeFilter.SHOW_TEXT);
+  let accTextNodeLength = 0;
+  let caretOffset = 0;
+
+  if (!selection) return 0;
+
+  const anchorNode = selection.anchorNode;
+
+  if (
+    anchorNode?.nodeType !== Node.TEXT_NODE ||
+    Boolean(root.contains(anchorNode) === false)
+  ) {
+    return 0;
+  }
+
+  const anchorOffset = selection.anchorOffset;
+
+  while (walker.nextNode()) {
+    const currentNode = walker.currentNode as Text;
+
+    if (currentNode === anchorNode) {
+      caretOffset = accTextNodeLength + anchorOffset;
+      break;
+    }
+
+    accTextNodeLength += currentNode.length;
+  }
+
+  return caretOffset;
 }
 
 // ============================================================
@@ -75,9 +129,17 @@ export function getCaretOffset(root: HTMLElement): number {
  */
 export function setCaretToElementEdge(
   element: HTMLElement,
-  position: 'start' | 'end'
+  position: "start" | "end"
 ): void {
   // TODO: 구현
+  const range = document.createRange();
+  range.selectNodeContents(element);
+  range.collapse(Boolean(position === "start"));
+
+  const selection = window.getSelection();
+  if (!selection) return;
+  selection.removeAllRanges();
+  selection.addRange(range);
 }
 
 /**
@@ -89,9 +151,22 @@ export function setCaretToElementEdge(
  */
 export function setCaretAroundElement(
   element: HTMLElement,
-  position: 'before' | 'after'
+  position: "before" | "after"
 ): void {
   // TODO: 구현
+  const range = document.createRange();
+
+  if (position === "before") {
+    range.setStartBefore(element);
+  } else {
+    range.setEndAfter(element);
+  }
+  range.collapse(true);
+
+  const selection = window.getSelection();
+  if (!selection) return;
+  selection.removeAllRanges();
+  selection.addRange(range);
 }
 
 // ============================================================
@@ -132,12 +207,19 @@ export default function CaretControlDemo() {
     <div>
       <h2>Day 04: 커서(Caret) 제어</h2>
 
-      <div style={{ display: 'flex', gap: '8px', alignItems: 'center', marginBottom: '12px' }}>
+      <div
+        style={{
+          display: "flex",
+          gap: "8px",
+          alignItems: "center",
+          marginBottom: "12px",
+        }}
+      >
         <input
           type="number"
           value={targetOffset}
           onChange={(e) => setTargetOffset(Number(e.target.value))}
-          style={{ width: '80px' }}
+          style={{ width: "80px" }}
           placeholder="오프셋"
         />
         {/* TODO: "이동" 버튼 */}
@@ -150,22 +232,25 @@ export default function CaretControlDemo() {
         contentEditable
         suppressContentEditableWarning
         style={{
-          border: '1px solid #ccc',
-          padding: '16px',
-          minHeight: '150px',
+          border: "1px solid #ccc",
+          padding: "16px",
+          minHeight: "150px",
         }}
       >
-        안녕하세요! <strong>커서 제어</strong>를 학습합니다.{' '}
-        <em>이탤릭</em> 텍스트와 <strong><em>중첩 마크</em></strong>도
-        포함되어 있습니다.
+        안녕하세요! <strong>커서 제어</strong>를 학습합니다. <em>이탤릭</em>{" "}
+        텍스트와{" "}
+        <strong>
+          <em>중첩 마크</em>
+        </strong>
+        도 포함되어 있습니다.
       </div>
 
       <div
         style={{
-          marginTop: '12px',
-          padding: '8px',
-          background: '#f0f0f0',
-          fontFamily: 'monospace',
+          marginTop: "12px",
+          padding: "8px",
+          background: "#f0f0f0",
+          fontFamily: "monospace",
         }}
       >
         현재 커서 위치: {currentOffset} / 전체 길이: ?

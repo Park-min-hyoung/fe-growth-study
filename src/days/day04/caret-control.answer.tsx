@@ -4,13 +4,16 @@
  * ⚠️ 먼저 caret-control.tsx를 직접 구현한 뒤 비교하세요!
  */
 
-import { useRef, useState, useCallback, useEffect } from 'react';
+import { useRef, useState, useCallback, useEffect } from "react";
 
 // ============================================================
 // Part 1: setCaretByOffset — 전체 오프셋으로 커서 이동
 // ============================================================
 
-export function setCaretByOffset(root: HTMLElement, globalOffset: number): void {
+export function setCaretByOffset(
+  root: HTMLElement,
+  globalOffset: number
+): void {
   const walker = document.createTreeWalker(root, NodeFilter.SHOW_TEXT);
   let accumulated = 0;
 
@@ -74,10 +77,13 @@ export function getCaretOffset(root: HTMLElement): number {
 // Part 3: 커서를 특정 요소의 시작/끝으로 이동
 // ============================================================
 
-export function setCaretToElementEdge(element: HTMLElement, position: 'start' | 'end'): void {
+export function setCaretToElementEdge(
+  element: HTMLElement,
+  position: "start" | "end"
+): void {
   const range = document.createRange();
   range.selectNodeContents(element);
-  range.collapse(position === 'start');
+  range.collapse(position === "start");
 
   const selection = window.getSelection();
   if (!selection) return;
@@ -85,10 +91,13 @@ export function setCaretToElementEdge(element: HTMLElement, position: 'start' | 
   selection.addRange(range);
 }
 
-export function setCaretAroundElement(element: HTMLElement, position: 'before' | 'after'): void {
+export function setCaretAroundElement(
+  element: HTMLElement,
+  position: "before" | "after"
+): void {
   const range = document.createRange();
 
-  if (position === 'before') {
+  if (position === "before") {
     range.setStartBefore(element);
   } else {
     range.setStartAfter(element);
@@ -117,13 +126,16 @@ export default function CaretControlDemo() {
       if (!editorRef.current) return;
       setCurrentOffset(getCaretOffset(editorRef.current));
     };
-    document.addEventListener('selectionchange', handler);
-    return () => document.removeEventListener('selectionchange', handler);
+    document.addEventListener("selectionchange", handler);
+    return () => document.removeEventListener("selectionchange", handler);
   }, []);
 
   useEffect(() => {
     if (editorRef.current) {
-      const walker = document.createTreeWalker(editorRef.current, NodeFilter.SHOW_TEXT);
+      const walker = document.createTreeWalker(
+        editorRef.current,
+        NodeFilter.SHOW_TEXT
+      );
       let len = 0;
       while (walker.nextNode()) {
         len += (walker.currentNode as Text).length;
@@ -140,25 +152,25 @@ export default function CaretControlDemo() {
 
   const handleMoveToStart = useCallback(() => {
     if (!editorRef.current) return;
-    setCaretToElementEdge(editorRef.current, 'start');
+    setCaretToElementEdge(editorRef.current, "start");
     editorRef.current.focus();
   }, []);
 
   const handleMoveToEnd = useCallback(() => {
     if (!editorRef.current) return;
-    setCaretToElementEdge(editorRef.current, 'end');
+    setCaretToElementEdge(editorRef.current, "end");
     editorRef.current.focus();
   }, []);
 
   const handleBeforeBold = useCallback(() => {
     if (!boldRef.current) return;
-    setCaretAroundElement(boldRef.current, 'before');
+    setCaretAroundElement(boldRef.current, "before");
     editorRef.current?.focus();
   }, []);
 
   const handleAfterBold = useCallback(() => {
     if (!boldRef.current) return;
-    setCaretAroundElement(boldRef.current, 'after');
+    setCaretAroundElement(boldRef.current, "after");
     editorRef.current?.focus();
   }, []);
 
@@ -166,12 +178,20 @@ export default function CaretControlDemo() {
     <div>
       <h2>Day 04: 커서(Caret) 제어</h2>
 
-      <div style={{ display: 'flex', gap: '8px', alignItems: 'center', marginBottom: '12px', flexWrap: 'wrap' }}>
+      <div
+        style={{
+          display: "flex",
+          gap: "8px",
+          alignItems: "center",
+          marginBottom: "12px",
+          flexWrap: "wrap",
+        }}
+      >
         <input
           type="number"
           value={targetOffset}
           onChange={(e) => setTargetOffset(Number(e.target.value))}
-          style={{ width: '80px' }}
+          style={{ width: "80px" }}
           placeholder="오프셋"
         />
         <button onClick={handleMoveCaret}>이동</button>
@@ -185,13 +205,24 @@ export default function CaretControlDemo() {
         ref={editorRef}
         contentEditable
         suppressContentEditableWarning
-        style={{ border: '1px solid #ccc', padding: '16px', minHeight: '150px' }}
+        style={{
+          border: "1px solid #ccc",
+          padding: "16px",
+          minHeight: "150px",
+        }}
       >
-        안녕하세요! <strong ref={boldRef as React.Ref<HTMLElement>}>커서 제어</strong>를 학습합니다.{' '}
-        <em>이탤릭</em> 텍스트와 <strong><em>중첩 마크</em></strong>도 포함되어 있습니다.
+        안녕하세요!{" "}
+        <strong ref={boldRef as React.Ref<HTMLElement>}>커서 제어</strong>를
+        학습합니다. <em>이탤릭</em> 텍스트와{" "}
+        <strong>
+          <em>중첩 마크</em>
+        </strong>
+        도 포함되어 있습니다.
       </div>
 
-      <div style={{ marginTop: '12px', padding: '8px', background: '#f0f0f0', fontFamily: 'monospace' }}>
+      <div
+        style={{ marginTop: "12px", padding: "8px", fontFamily: "monospace" }}
+      >
         현재 커서 위치: {currentOffset} / 전체 길이: {totalLength}
       </div>
     </div>

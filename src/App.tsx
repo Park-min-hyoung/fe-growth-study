@@ -4,6 +4,7 @@ import "./App.css";
 // import SelectionControlAnswer from "./days/day02/selection-control.answer";
 // import TreeWalker from "./days/day03/tree-walker";
 // import TreeWalkerAnswer from "./days/day03/tree-walker.answer";
+import CarectControl from "./days/day04/caret-control";
 import CarectControlAnswer from "./days/day04/caret-control.answer";
 
 function App() {
@@ -20,6 +21,7 @@ function App() {
       {/* <TreeWalkerAnswer />
       <TreeWalker /> */}
       <CarectControlAnswer />
+      <CarectControl />
     </div>
   );
 }

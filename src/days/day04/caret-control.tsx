@@ -10,7 +10,7 @@
  * 상호작용: Day03의 TreeWalker 활용
  */
 
-import { useRef, useState, useCallback, useEffect } from "react";
+import { useRef, useState, useCallback, useEffect, useMemo } from "react";
 
 // ============================================================
 // Part 1: setCaretByOffset — 전체 오프셋으로 커서 이동
@@ -51,6 +51,12 @@ export function setCaretByOffset(
       const range = document.createRange();
       range.setStart(currentNode, localOffset);
       range.collapse();
+
+      const selection = window.getSelection();
+
+      selection?.removeAllRanges();
+      selection?.addRange(range);
+
       break;
     }
 
@@ -63,6 +69,18 @@ export function setCaretByOffset(
     range.collapse();
   }
 }
+
+const getTotalLength = (root: HTMLElement) => {
+  const walker = document.createTreeWalker(root, NodeFilter.SHOW_TEXT);
+  let totalLength = 0;
+
+  while (walker.nextNode()) {
+    const cureentNode = walker.currentNode as Text;
+    totalLength += cureentNode.length;
+  }
+
+  return totalLength;
+};
 
 // ============================================================
 // Part 2: getCaretOffset — 현재 커서의 전체 오프셋 반환
@@ -154,12 +172,14 @@ export function setCaretAroundElement(
   position: "before" | "after"
 ): void {
   // TODO: 구현
+
   const range = document.createRange();
 
   if (position === "before") {
     range.setStartBefore(element);
-  } else {
-    range.setEndAfter(element);
+  } else if (position === "after") {
+    console.log("hi");
+    range.setStartAfter(element);
   }
   range.collapse(true);
 
@@ -187,21 +207,51 @@ export default function CaretControlDemo() {
   const editorRef = useRef<HTMLDivElement>(null);
   const [targetOffset, setTargetOffset] = useState(0);
   const [currentOffset, setCurrentOffset] = useState(0);
+  const [total, setTotal] = useState(0);
 
   // TODO: selectionchange 이벤트로 currentOffset 실시간 업데이트
-  // useEffect(() => {
-  //   const handler = () => {
-  //     if (editorRef.current) {
-  //       setCurrentOffset(getCaretOffset(editorRef.current));
-  //     }
-  //   };
-  //   document.addEventListener('selectionchange', handler);
-  //   return () => document.removeEventListener('selectionchange', handler);
-  // }, []);
+  useEffect(() => {
+    const handler = () => {
+      if (editorRef.current) {
+        setCurrentOffset(getCaretOffset(editorRef.current));
+      }
+    };
+    document.addEventListener("selectionchange", handler);
+    return () => document.removeEventListener("selectionchange", handler);
+  }, []);
+
+  useEffect(() => {
+    if (!editorRef || !editorRef.current) return setTotal(0);
+
+    const t = getTotalLength(editorRef.current);
+
+    setTotal(t);
+  }, [editorRef.current]);
 
   const handleMoveCaret = useCallback(() => {
     // TODO: setCaretByOffset(editorRef.current!, targetOffset)
+
+    setCaretByOffset(editorRef.current!, targetOffset);
   }, [targetOffset]);
+
+  const handleTarget = useCallback((postition: "after" | "before") => {
+    // TODO: setCaretByOffset(editorRef.current!, targetOffset)
+
+    const walker = document.createTreeWalker(
+      editorRef.current!,
+      NodeFilter.SHOW_ELEMENT
+    );
+
+    while (walker.nextNode()) {
+      const currentNode = walker.currentNode as HTMLElement;
+
+      if (currentNode.tagName === "STRONG") {
+        setCaretAroundElement(currentNode, postition);
+      }
+
+      break;
+    }
+  }, []);
 
   return (
     <div>
@@ -223,8 +273,21 @@ export default function CaretControlDemo() {
           placeholder="오프셋"
         />
         {/* TODO: "이동" 버튼 */}
+        <button onClick={handleMoveCaret}>이동</button>
         {/* TODO: "처음으로" 버튼 */}
+        <button
+          onClick={() => setCaretToElementEdge(editorRef.current!, "start")}
+        >
+          처음으로
+        </button>
+        <button
+          onClick={() => setCaretToElementEdge(editorRef.current!, "end")}
+        >
+          끝으로
+        </button>
         {/* TODO: "끝으로" 버튼 */}
+        <button onClick={() => handleTarget("before")}>볼드 요소 앞</button>
+        <button onClick={() => handleTarget("after")}>볼드 요소 뒤</button>
       </div>
 
       <div
@@ -249,12 +312,10 @@ export default function CaretControlDemo() {
         style={{
           marginTop: "12px",
           padding: "8px",
-          background: "#f0f0f0",
           fontFamily: "monospace",
         }}
       >
-        현재 커서 위치: {currentOffset} / 전체 길이: ?
-        {/* TODO: 전체 텍스트 길이도 표시 */}
+        현재 커서 위치: {currentOffset} / 전체 길이: {total}
       </div>
     </div>
   );

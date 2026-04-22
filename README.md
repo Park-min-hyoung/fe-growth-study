@@ -1,6 +1,8 @@
 # fe-growth-study
 
-브라우저 엔진 레벨 역량 강화를 위한 **75일** 학습 프로젝트 (하루 2~3시간 기준)
+브라우저 엔진 레벨 역량 강화를 위한 **최대 100일** 학습 프로젝트 (하루 2~3시간 기준)
+
+> 브라우저 API 87일 + Side Study(번들 분석, 패키지 매니저, 환경변수, Docker, Cloud/CI/CD) 13일
 
 ## 개발 환경 세팅
 
@@ -60,105 +62,152 @@ npm run dev
 | 24 | DOMPurify 설정 + XSS 방어 | `sanitization.ts` | ⭐⭐⭐⭐ |
 | 25 | paste 핸들러 + roundtrip 테스트 | `paste-handler.tsx` | ⭐⭐⭐⭐⭐ |
 
-### Module 5: IME 처리 + 자동저장 (Day 26-30)
+### 🛠 Side Study A: 번들 분석 (Day 26)
+
+| Day | 주제 | 내용 |
+|-----|------|------|
+| 26 | Vite 번들 분석 | `rollup-plugin-visualizer` 설치 + 이 프로젝트 번들 직접 분석 |
+
+---
+
+### Module 5: IME 처리 + 자동저장 (Day 27-31)
 
 | Day | 주제 | 파일명 | 난이도 |
 |-----|------|--------|--------|
-| 26 | compositionstart/update/end 이벤트 이해 | `composition-events.tsx` | ⭐⭐⭐⭐ |
-| 27 | IME 상태 관리 (isComposing 플래그) | `ime-state.tsx` | ⭐⭐⭐⭐⭐ |
-| 28 | IME + Selection 충돌 해결 | `ime-selection-sync.tsx` | ⭐⭐⭐⭐⭐⭐ |
-| 29 | debounce 구현 + 자동저장 시스템 | `auto-save.tsx` | ⭐⭐⭐⭐ |
-| 30 | ETag 충돌 감지 + 충돌 해결 UI | `conflict-resolution.tsx` | ⭐⭐⭐⭐⭐⭐ |
+| 27 | compositionstart/update/end 이벤트 이해 | `composition-events.tsx` | ⭐⭐⭐⭐ |
+| 28 | IME 상태 관리 (isComposing 플래그) | `ime-state.tsx` | ⭐⭐⭐⭐⭐ |
+| 29 | IME + Selection 충돌 해결 | `ime-selection-sync.tsx` | ⭐⭐⭐⭐⭐⭐ |
+| 30 | debounce 구현 + 자동저장 시스템 | `auto-save.tsx` | ⭐⭐⭐⭐ |
+| 31 | ETag 충돌 감지 + 충돌 해결 UI | `conflict-resolution.tsx` | ⭐⭐⭐⭐⭐⭐ |
 
-### Module 6: Canvas API 심화 (Day 31-37)
+### 🛠 Side Study B: 패키지 매니저 (Day 32-33)
 
-| Day | 주제 | 파일명 | 난이도 |
-|-----|------|--------|--------|
-| 31 | Canvas 2D 기본 드로잉 (도형, 경로, 텍스트) | `canvas-drawing.tsx` | ⭐⭐⭐ |
-| 32 | Canvas 이미지 로딩 + drawImage | `canvas-image.tsx` | ⭐⭐⭐ |
-| 33 | 좌표 변환 매트릭스 (translate, rotate, scale) | `canvas-transform.tsx` | ⭐⭐⭐⭐⭐ |
-| 34 | 픽셀 조작 (getImageData, putImageData) | `pixel-manipulation.tsx` | ⭐⭐⭐⭐ |
-| 35 | 색상 채널 조작 (밝기, 대비, 그레이스케일) | `color-channels.tsx` | ⭐⭐⭐⭐⭐ |
-| 36 | Canvas 합성 (globalCompositeOperation) | `canvas-compositing.tsx` | ⭐⭐⭐⭐ |
-| 37 | 고DPI(Retina) 대응 + Blob/DataURL 변환 | `hidpi-export.tsx` | ⭐⭐⭐⭐⭐ |
+| Day | 주제 | 내용 |
+|-----|------|------|
+| 32 | pnpm 전환 | npm → pnpm 마이그레이션, workspace 개념 이해 |
+| 33 | 의존성 관리 | peer dependency, hoisting, lockfile 원리 |
 
-### Module 7: Web Worker + OffscreenCanvas (Day 38-43)
+---
+
+### Module 6: Canvas API 심화 (Day 34-40)
 
 | Day | 주제 | 파일명 | 난이도 |
 |-----|------|--------|--------|
-| 38 | Web Worker 기본 (생성, 통신, 종료) | `worker-basics.tsx` | ⭐⭐⭐ |
-| 39 | Worker에서 이미지 데이터 처리 | `worker-image.tsx` + `image.worker.ts` | ⭐⭐⭐⭐ |
-| 40 | OffscreenCanvas 생성 + Worker 전달 | `offscreen-canvas.tsx` | ⭐⭐⭐⭐⭐ |
-| 41 | Transferable Objects 성능 최적화 | `transferable-objects.tsx` | ⭐⭐⭐⭐⭐ |
-| 42 | Worker 진행률 보고 (progress events) | `worker-progress.tsx` | ⭐⭐⭐⭐ |
-| 43 | Worker 파이프라인 패턴 (순차 연산 체이닝) | `worker-pipeline.tsx` | ⭐⭐⭐⭐⭐⭐ |
+| 34 | Canvas 2D 기본 드로잉 (도형, 경로, 텍스트) | `canvas-drawing.tsx` | ⭐⭐⭐ |
+| 35 | Canvas 이미지 로딩 + drawImage | `canvas-image.tsx` | ⭐⭐⭐ |
+| 36 | 좌표 변환 매트릭스 (translate, rotate, scale) | `canvas-transform.tsx` | ⭐⭐⭐⭐⭐ |
+| 37 | 픽셀 조작 (getImageData, putImageData) | `pixel-manipulation.tsx` | ⭐⭐⭐⭐ |
+| 38 | 색상 채널 조작 (밝기, 대비, 그레이스케일) | `color-channels.tsx` | ⭐⭐⭐⭐⭐ |
+| 39 | Canvas 합성 (globalCompositeOperation) | `canvas-compositing.tsx` | ⭐⭐⭐⭐ |
+| 40 | 고DPI(Retina) 대응 + Blob/DataURL 변환 | `hidpi-export.tsx` | ⭐⭐⭐⭐⭐ |
 
-### Module 8: EXIF + 이미지 변환 (Day 44-48)
+### 🛠 Side Study C: 환경변수 관리 (Day 41-42)
 
-| Day | 주제 | 파일명 | 난이도 |
-|-----|------|--------|--------|
-| 44 | EXIF 데이터 파싱 (DataView + ArrayBuffer) | `exif-parser.ts` | ⭐⭐⭐⭐⭐⭐ |
-| 45 | EXIF orientation 자동 회전 | `exif-rotation.tsx` | ⭐⭐⭐⭐⭐ |
-| 46 | Crop 연산 구현 | `crop-operation.tsx` | ⭐⭐⭐⭐ |
-| 47 | Resize 연산 (비율 유지, 보간법) | `resize-operation.tsx` | ⭐⭐⭐⭐⭐ |
-| 48 | Rotate 연산 (임의 각도, Canvas 크기 재계산) | `rotate-operation.tsx` | ⭐⭐⭐⭐⭐ |
+| Day | 주제 | 내용 |
+|-----|------|------|
+| 41 | 환경변수 기초 | `.env`, `.env.production`, Vite의 `import.meta.env` 체계 |
+| 42 | 빌드 타임 vs 런타임 | 환경변수가 번들에 어떻게 삽입되는지, secrets 관리 원칙 |
 
-### Module 9: 필터 + 내보내기 (Day 49-52)
+---
 
-| Day | 주제 | 파일명 | 난이도 |
-|-----|------|--------|--------|
-| 49 | 이미지 필터 (세피아, 인버트, 블러) | `image-filters.tsx` | ⭐⭐⭐⭐ |
-| 50 | 커스텀 컨볼루션 필터 (샤픈, 엣지 검출) | `convolution-filter.tsx` | ⭐⭐⭐⭐⭐⭐ |
-| 51 | WebP/PNG 내보내기 + 품질 슬라이더 | `image-export.tsx` | ⭐⭐⭐⭐ |
-| 52 | AbortController + 전체 이미지 파이프라인 통합 | `image-pipeline.tsx` | ⭐⭐⭐⭐⭐⭐⭐ |
-
-### Module 10: D3 기초 + React 패턴 (Day 53-57)
+### Module 7: Web Worker + OffscreenCanvas (Day 43-48)
 
 | Day | 주제 | 파일명 | 난이도 |
 |-----|------|--------|--------|
-| 53 | D3 스케일 (scaleLinear, scaleBand) | `scales-basic.tsx` | ⭐⭐⭐ |
-| 54 | D3 스케일 (scaleTime, scaleOrdinal, 색상 스케일) | `scales-advanced.tsx` | ⭐⭐⭐⭐ |
-| 55 | D3 축(axis) + 포맷터 | `axis-formatter.tsx` | ⭐⭐⭐⭐ |
-| 56 | D3 도형 생성기 (line, area, arc) | `shape-generators.tsx` | ⭐⭐⭐⭐ |
-| 57 | "D3 in, React out" 패턴 + SVG viewBox | `d3-react-pattern.tsx` | ⭐⭐⭐⭐⭐ |
+| 43 | Web Worker 기본 (생성, 통신, 종료) | `worker-basics.tsx` | ⭐⭐⭐ |
+| 44 | Worker에서 이미지 데이터 처리 | `worker-image.tsx` + `image.worker.ts` | ⭐⭐⭐⭐ |
+| 45 | OffscreenCanvas 생성 + Worker 전달 | `offscreen-canvas.tsx` | ⭐⭐⭐⭐⭐ |
+| 46 | Transferable Objects 성능 최적화 | `transferable-objects.tsx` | ⭐⭐⭐⭐⭐ |
+| 47 | Worker 진행률 보고 (progress events) | `worker-progress.tsx` | ⭐⭐⭐⭐ |
+| 48 | Worker 파이프라인 패턴 (순차 연산 체이닝) | `worker-pipeline.tsx` | ⭐⭐⭐⭐⭐⭐ |
 
-### Module 11: Line & Bar 차트 (Day 58-62)
-
-| Day | 주제 | 파일명 | 난이도 |
-|-----|------|--------|--------|
-| 58 | Line 차트 기본 구현 | `line-chart.tsx` | ⭐⭐⭐⭐ |
-| 59 | Line 차트 - 다중 시리즈 + 애니메이션 | `line-chart-multi.tsx` | ⭐⭐⭐⭐⭐ |
-| 60 | Bar 차트 기본 구현 | `bar-chart.tsx` | ⭐⭐⭐⭐ |
-| 61 | Bar 차트 - 그룹/스택 + 반응형(ResizeObserver) | `bar-chart-advanced.tsx` | ⭐⭐⭐⭐⭐⭐ |
-| 62 | 차트 공통 컴포넌트 (Axis, Grid, Legend) | `chart-components.tsx` | ⭐⭐⭐⭐⭐ |
-
-### Module 12: Pie + 범례 + 인터랙션 (Day 63-68)
+### Module 8: EXIF + 이미지 변환 (Day 49-53)
 
 | Day | 주제 | 파일명 | 난이도 |
 |-----|------|--------|--------|
-| 63 | Pie/Donut 차트 구현 | `pie-chart.tsx` | ⭐⭐⭐⭐ |
-| 64 | 범례 + 툴팁 컴포넌트 | `legend-tooltip.tsx` | ⭐⭐⭐⭐ |
-| 65 | 차트 인터랙션 (hover, click, brush) | `chart-interactions.tsx` | ⭐⭐⭐⭐⭐⭐ |
-| 66 | D3 zoom + pan 구현 | `zoom-pan.tsx` | ⭐⭐⭐⭐⭐⭐ |
-| 67 | 키보드 내비게이션 (데이터 포인트 간 이동) | `keyboard-nav.tsx` | ⭐⭐⭐⭐⭐ |
-| 68 | ARIA 접근성 + SVG/PNG 내보내기 | `a11y-export.tsx` | ⭐⭐⭐⭐⭐⭐ |
+| 49 | EXIF 데이터 파싱 (DataView + ArrayBuffer) | `exif-parser.ts` | ⭐⭐⭐⭐⭐⭐ |
+| 50 | EXIF orientation 자동 회전 | `exif-rotation.tsx` | ⭐⭐⭐⭐⭐ |
+| 51 | Crop 연산 구현 | `crop-operation.tsx` | ⭐⭐⭐⭐ |
+| 52 | Resize 연산 (비율 유지, 보간법) | `resize-operation.tsx` | ⭐⭐⭐⭐⭐ |
+| 53 | Rotate 연산 (임의 각도, Canvas 크기 재계산) | `rotate-operation.tsx` | ⭐⭐⭐⭐⭐ |
 
-### Module 13: 공통 역량 (Day 69-73)
+### 🛠 Side Study D: Docker (Day 54-56)
+
+| Day | 주제 | 내용 |
+|-----|------|------|
+| 54 | Docker 기초 | 컨테이너/이미지 개념, `docker run`, `docker ps` |
+| 55 | Dockerfile 작성 | 이 프로젝트 Dockerfile 직접 작성 + 빌드 |
+| 56 | docker-compose | 로컬 개발 환경 구성 |
+
+---
+
+### Module 9: 필터 + 내보내기 (Day 57-60)
 
 | Day | 주제 | 파일명 | 난이도 |
 |-----|------|--------|--------|
-| 69 | Zustand 기본 (스토어 설계, 셀렉터) | `zustand-basics.tsx` | ⭐⭐⭐ |
-| 70 | Zustand 심화 (미들웨어, persist, devtools) | `zustand-advanced.tsx` | ⭐⭐⭐⭐⭐ |
-| 71 | React Query (useQuery, useMutation, 캐시) | `react-query-basics.tsx` | ⭐⭐⭐⭐ |
-| 72 | React Query + ky (API 클라이언트, 인터셉터) | `api-client.tsx` | ⭐⭐⭐⭐⭐ |
-| 73 | Zod 런타임 검증 (스키마 정의, DTO 변환) | `zod-validation.tsx` | ⭐⭐⭐⭐ |
+| 57 | 이미지 필터 (세피아, 인버트, 블러) | `image-filters.tsx` | ⭐⭐⭐⭐ |
+| 58 | 커스텀 컨볼루션 필터 (샤픈, 엣지 검출) | `convolution-filter.tsx` | ⭐⭐⭐⭐⭐⭐ |
+| 59 | WebP/PNG 내보내기 + 품질 슬라이더 | `image-export.tsx` | ⭐⭐⭐⭐ |
+| 60 | AbortController + 전체 이미지 파이프라인 통합 | `image-pipeline.tsx` | ⭐⭐⭐⭐⭐⭐⭐ |
 
-### Module 14: 통합 (Day 74-75)
+### 🛠 Side Study E: Cloud + CI/CD + 배포 (Day 61-64)
+
+| Day | 주제 | 내용 |
+|-----|------|------|
+| 61 | Cloud 기초 | AWS S3 + CloudFront 개념, 정적 호스팅 원리 |
+| 62 | GitHub Actions 기초 | workflow 파일 작성, 트리거, 잡 구성 |
+| 63 | CI/CD 파이프라인 | 이 프로젝트 빌드 → S3 배포 자동화 직접 구성 |
+| 64 | 배포 점검 | 환경변수 주입, 캐시 무효화, 롤백 방법 |
+
+---
+
+### Module 10: D3 기초 + React 패턴 (Day 65-69)
 
 | Day | 주제 | 파일명 | 난이도 |
 |-----|------|--------|--------|
-| 74 | 에러 바운더리 + 전역 에러 처리 | `error-boundary.tsx` | ⭐⭐⭐⭐⭐ |
-| 75 | 통합 (에디터 + 이미지 모달 + 차트 삽입) | `integration.tsx` | ⭐⭐⭐⭐⭐⭐⭐⭐ |
+| 65 | D3 스케일 (scaleLinear, scaleBand) | `scales-basic.tsx` | ⭐⭐⭐ |
+| 66 | D3 스케일 (scaleTime, scaleOrdinal, 색상 스케일) | `scales-advanced.tsx` | ⭐⭐⭐⭐ |
+| 67 | D3 축(axis) + 포맷터 | `axis-formatter.tsx` | ⭐⭐⭐⭐ |
+| 68 | D3 도형 생성기 (line, area, arc) | `shape-generators.tsx` | ⭐⭐⭐⭐ |
+| 69 | "D3 in, React out" 패턴 + SVG viewBox | `d3-react-pattern.tsx` | ⭐⭐⭐⭐⭐ |
+
+### Module 11: Line & Bar 차트 (Day 70-74)
+
+| Day | 주제 | 파일명 | 난이도 |
+|-----|------|--------|--------|
+| 70 | Line 차트 기본 구현 | `line-chart.tsx` | ⭐⭐⭐⭐ |
+| 71 | Line 차트 - 다중 시리즈 + 애니메이션 | `line-chart-multi.tsx` | ⭐⭐⭐⭐⭐ |
+| 72 | Bar 차트 기본 구현 | `bar-chart.tsx` | ⭐⭐⭐⭐ |
+| 73 | Bar 차트 - 그룹/스택 + 반응형(ResizeObserver) | `bar-chart-advanced.tsx` | ⭐⭐⭐⭐⭐⭐ |
+| 74 | 차트 공통 컴포넌트 (Axis, Grid, Legend) | `chart-components.tsx` | ⭐⭐⭐⭐⭐ |
+
+### Module 12: Pie + 범례 + 인터랙션 (Day 75-80)
+
+| Day | 주제 | 파일명 | 난이도 |
+|-----|------|--------|--------|
+| 75 | Pie/Donut 차트 구현 | `pie-chart.tsx` | ⭐⭐⭐⭐ |
+| 76 | 범례 + 툴팁 컴포넌트 | `legend-tooltip.tsx` | ⭐⭐⭐⭐ |
+| 77 | 차트 인터랙션 (hover, click, brush) | `chart-interactions.tsx` | ⭐⭐⭐⭐⭐⭐ |
+| 78 | D3 zoom + pan 구현 | `zoom-pan.tsx` | ⭐⭐⭐⭐⭐⭐ |
+| 79 | 키보드 내비게이션 (데이터 포인트 간 이동) | `keyboard-nav.tsx` | ⭐⭐⭐⭐⭐ |
+| 80 | ARIA 접근성 + SVG/PNG 내보내기 | `a11y-export.tsx` | ⭐⭐⭐⭐⭐⭐ |
+
+### Module 13: 공통 역량 (Day 81-85)
+
+| Day | 주제 | 파일명 | 난이도 |
+|-----|------|--------|--------|
+| 81 | Zustand 기본 (스토어 설계, 셀렉터) | `zustand-basics.tsx` | ⭐⭐⭐ |
+| 82 | Zustand 심화 (미들웨어, persist, devtools) | `zustand-advanced.tsx` | ⭐⭐⭐⭐⭐ |
+| 83 | React Query (useQuery, useMutation, 캐시) | `react-query-basics.tsx` | ⭐⭐⭐⭐ |
+| 84 | React Query + ky (API 클라이언트, 인터셉터) | `api-client.tsx` | ⭐⭐⭐⭐⭐ |
+| 85 | Zod 런타임 검증 (스키마 정의, DTO 변환) | `zod-validation.tsx` | ⭐⭐⭐⭐ |
+
+### Module 14: 통합 (Day 86-87)
+
+| Day | 주제 | 파일명 | 난이도 |
+|-----|------|--------|--------|
+| 86 | 에러 바운더리 + 전역 에러 처리 | `error-boundary.tsx` | ⭐⭐⭐⭐⭐ |
+| 87 | 통합 (에디터 + 이미지 모달 + 차트 삽입) | `integration.tsx` | ⭐⭐⭐⭐⭐⭐⭐⭐ |
 
 ## 추가된 개념 및 이유
 

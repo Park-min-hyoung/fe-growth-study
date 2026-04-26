@@ -4,7 +4,7 @@
  * ⚠️ 먼저 caret-coordinates.tsx를 직접 구현한 뒤 비교하세요!
  */
 
-import { useRef, useState, useCallback, useEffect } from 'react';
+import { useRef, useState, useCallback, useEffect } from "react";
 
 // ============================================================
 // Part 1: Range 좌표 획득
@@ -40,15 +40,24 @@ export function getCaretCoordinates(): { x: number; y: number } | null {
 
 export function getRangeFromPoint(x: number, y: number): Range | null {
   // Chrome, Safari
-  if ('caretRangeFromPoint' in document) {
-    return (document as Document & { caretRangeFromPoint(x: number, y: number): Range | null }).caretRangeFromPoint(x, y);
+  if ("caretRangeFromPoint" in document) {
+    return (
+      document as Document & {
+        caretRangeFromPoint(x: number, y: number): Range | null;
+      }
+    ).caretRangeFromPoint(x, y);
   }
 
   // Firefox
-  if ('caretPositionFromPoint' in document) {
-    const pos = (document as Document & {
-      caretPositionFromPoint(x: number, y: number): { offsetNode: Node; offset: number } | null
-    }).caretPositionFromPoint(x, y);
+  if ("caretPositionFromPoint" in document) {
+    const pos = (
+      document as Document & {
+        caretPositionFromPoint(
+          x: number,
+          y: number
+        ): { offsetNode: Node; offset: number } | null;
+      }
+    ).caretPositionFromPoint(x, y);
 
     if (!pos) return null;
 
@@ -85,8 +94,13 @@ const FLOATING_SIZE = { width: 80, height: 28 };
 
 export default function CaretCoordinatesDemo() {
   const editorRef = useRef<HTMLDivElement>(null);
-  const [caretPos, setCaretPos] = useState<{ x: number; y: number } | null>(null);
-  const [floatingPos, setFloatingPos] = useState<{ x: number; y: number } | null>(null);
+  const [caretPos, setCaretPos] = useState<{ x: number; y: number } | null>(
+    null
+  );
+  const [floatingPos, setFloatingPos] = useState<{
+    x: number;
+    y: number;
+  } | null>(null);
   const [showFloating, setShowFloating] = useState(false);
 
   useEffect(() => {
@@ -111,8 +125,8 @@ export default function CaretCoordinatesDemo() {
       setShowFloating(true);
     };
 
-    document.addEventListener('selectionchange', handler);
-    return () => document.removeEventListener('selectionchange', handler);
+    document.addEventListener("selectionchange", handler);
+    return () => document.removeEventListener("selectionchange", handler);
   }, []);
 
   const handleMouseDown = useCallback((e: React.MouseEvent) => {
@@ -128,44 +142,69 @@ export default function CaretCoordinatesDemo() {
   }, []);
 
   return (
-    <div style={{ position: 'relative' }}>
-      <h2>Day 05: 커서 좌표 추적</h2>
+    <div style={{ position: "relative" }}>
+      <h2>Day 05: 커서 좌표 추적 답안</h2>
 
       <div
         ref={editorRef}
         contentEditable
         suppressContentEditableWarning
         onMouseDown={handleMouseDown}
-        style={{ border: '1px solid #ccc', padding: '16px', minHeight: '150px', lineHeight: '2' }}
+        style={{
+          border: "1px solid #ccc",
+          padding: "16px",
+          minHeight: "150px",
+          lineHeight: "2",
+        }}
       >
         <p>첫 번째 단락입니다. 여기서 텍스트를 선택하거나 클릭해보세요.</p>
-        <p>두 번째 단락에는 <strong>볼드</strong>와 <em>이탤릭</em> 텍스트가 있습니다.</p>
+        <p>
+          두 번째 단락에는 <strong>볼드</strong>와 <em>이탤릭</em> 텍스트가
+          있습니다.
+        </p>
         <p>세 번째 단락입니다. 마우스 클릭 위치로 커서가 이동합니다.</p>
       </div>
 
       {showFloating && floatingPos && (
         <div
           style={{
-            position: 'fixed',
+            position: "fixed",
             left: floatingPos.x,
             top: floatingPos.y,
-            background: '#333',
-            color: '#fff',
-            padding: '4px 8px',
-            borderRadius: '4px',
-            fontSize: '12px',
-            pointerEvents: 'none',
-            transform: 'translateX(-50%)',
-            whiteSpace: 'nowrap',
+            background: "#333",
+            color: "#fff",
+            padding: "4px 8px",
+            borderRadius: "4px",
+            fontSize: "12px",
+            pointerEvents: "none",
+            transform: "translateX(-50%)",
+            whiteSpace: "nowrap",
           }}
         >
           선택됨
         </div>
       )}
 
-      <div style={{ marginTop: '12px', padding: '8px', background: '#f0f0f0', fontFamily: 'monospace', fontSize: '13px' }}>
-        <div>커서 좌표: {caretPos ? `x=${caretPos.x.toFixed(0)}, y=${caretPos.y.toFixed(0)}` : '없음'}</div>
-        <div>플로팅 위치: {floatingPos ? `x=${floatingPos.x.toFixed(0)}, y=${floatingPos.y.toFixed(0)}` : '없음'}</div>
+      <div
+        style={{
+          marginTop: "12px",
+          padding: "8px",
+          fontFamily: "monospace",
+          fontSize: "13px",
+        }}
+      >
+        <div>
+          커서 좌표:{" "}
+          {caretPos
+            ? `x=${caretPos.x.toFixed(0)}, y=${caretPos.y.toFixed(0)}`
+            : "없음"}
+        </div>
+        <div>
+          플로팅 위치:{" "}
+          {floatingPos
+            ? `x=${floatingPos.x.toFixed(0)}, y=${floatingPos.y.toFixed(0)}`
+            : "없음"}
+        </div>
       </div>
     </div>
   );

@@ -7,6 +7,11 @@
  * - 선택 영역의 BoundingClientRect 기반 툴바 위치 계산
  * - 뷰포트 경계 처리 (툴바가 화면 밖으로 나가지 않도록)
  * - 텍스트 서식(bold, italic, underline) 상태 감지 및 적용
+ *
+ * 왜 배우는가:
+ * Medium 글쓰기, Notion 블록 에디터처럼 텍스트를 드래그하면 바로 위에 서식 툴바가 뜨는 UX는
+ * 현대 에디터의 표준이 되었다. 고정 툴바 대비 맥락에 맞는 위치에 나타나 사용자 시선 이동을 줄여주며,
+ * 선택 좌표 계산 + 뷰포트 클리핑을 직접 다뤄봐야 실무 에디터 컴포넌트를 자신 있게 만들 수 있다.
  */
 
 import { useRef, useState, useCallback, useEffect } from 'react';

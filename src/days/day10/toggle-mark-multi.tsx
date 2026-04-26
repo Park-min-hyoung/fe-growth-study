@@ -7,6 +7,11 @@
  * - 중첩 마크 처리 (bold + italic 동시 적용)
  * - 서식 상태 실시간 감지 (selectionchange)
  * - 툴바 버튼 활성화 상태와 서식 상태 동기화
+ *
+ * 왜 배우는가:
+ * 실제 에디터에서 사용자는 bold와 italic을 동시에 적용하거나, 커서만 옮겨도 툴바 버튼이 즉시 반응하길 기대한다.
+ * 단일 서식을 넘어 여러 서식을 조합·감지하는 능력은 Google Docs, Notion 수준의 서식 UX를 만드는 핵심이며,
+ * 서식 상태와 UI 상태를 어떻게 동기화할지 설계하는 감각을 기를 수 있다.
  */
 
 import { useRef, useState, useCallback, useEffect } from 'react';

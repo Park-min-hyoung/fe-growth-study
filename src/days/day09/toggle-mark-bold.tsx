@@ -7,6 +7,12 @@
  * - 선택 영역 내 텍스트에 <strong> 태그 적용/해제
  * - 스냅샷 기반 undo (innerHTML 저장)
  * - 부분 선택 + 이미 적용된 서식 감지
+ *
+ * 왜 배우는가:
+ * Ctrl+B 단축키 하나로 bold가 토글되는 기능은 단순해 보이지만,
+ * 부분 선택·중첩 태그·undo 스택까지 직접 구현해야 비로소 "에디터가 내부에서 어떻게 동작하는지" 알게 된다.
+ * execCommand가 deprecated된 지금, 자체 서식 엔진을 가진 에디터(Tiptap, Slate 등)가 표준이 되었고
+ * 이 패턴을 이해해야 커스텀 서식 기능을 자유롭게 확장할 수 있다.
  */
 
 import { useRef, useState, useCallback } from 'react';

@@ -4,6 +4,12 @@
 전체 커리큘럼(day별 주제·파일명)은 [README.md](./README.md)를 기준으로 한다.
 브라우저 네이티브 API(Range, Selection, Canvas, Web Worker 등)를 직접 구현하며 동작 원리를 익히는 것이 목표.
 
+## 진행 상황
+
+- 현재 학습 중: Day05 (`src/App.tsx`에 활성화되어 있음)
+- Day08~10: 학습/답안 파일(`command-interface.ts`, `toggle-mark-bold.tsx`, `toggle-mark-multi.tsx`)이 미리 생성되어 있으나 전부 TODO 스텁 상태로 아직 구현 전. `App.tsx`에도 향후 참조용으로 import만 미리 추가되고 주석 처리되어 있음
+- 이 섹션은 학습이 진행됨에 따라 자주 바뀌므로, 실제 구현 여부는 각 파일 하단 체크리스트와 TODO 잔존 여부로 다시 확인할 것
+
 ## 명령어
 
 - `npm run dev`: Vite 개발 서버 시작

@@ -12,8 +12,8 @@ import CaretCoordinates from "./days/day05/caret-coordinates.tsx";
 // import HighlightApi from "./days/day06/highlight-api.tsx";
 // import FloatingToolbarAnswer from "./days/day07/floating-toolbar.answer.tsx";
 // import FloatingToolbar from "./days/day07/floating-toolbar.tsx";
-// import InsertBlockHeadingAnswer from "./days/day08/insert-block-heading.answer.tsx";
-// import InsertBlockHeading from "./days/day08/insert-block-heading.tsx";
+// import CommandInterfaceAnswer from "./days/day08/command-interface.answer.ts";
+// import CommandInterface from "./days/day08/command-interface.ts";
 // import ToggleMarkBoldAnswer from "./days/day09/toggle-mark-bold.answer.tsx";
 // import ToggleMarkBold from "./days/day09/toggle-mark-bold.tsx";
 // import ToggleMarkMultiAnswer from "./days/day10/toggle-mark-multi.answer.tsx";
@@ -55,8 +55,8 @@ function App() {
       <FloatingToolbar /> */}
 
       {/* Day08 */}
-      {/* <InsertBlockHeadingAnswer />
-      <InsertBlockHeading /> */}
+      {/* <CommandInterfaceAnswer />
+      <CommandInterface /> */}
 
       {/* Day09 */}
       {/* <ToggleMarkBoldAnswer />
